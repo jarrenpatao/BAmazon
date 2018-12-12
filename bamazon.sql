@@ -12,7 +12,4 @@ CREATE TABLE products (
 );
 
 INSERT INTO products (product_name, department_name, price, stock_quantity)
-VALUES ('Desk', 'Indoor-Furniture', 100.00, 10), ('Riser-Desk', 'Indoor-Furniture', 120.00, 10), ('Kids-Desk', 'Indoor-Furniture', 800.00, 10)
-
-UPDATE products;
-SET product_name = "Corner-Desk";
+VALUES ('Desk', 'Indoor-Furniture', 100.00, 30), ('Riser-Desk', 'Indoor-Furniture', 120.00, 40), ('Kids-Desk', 'Indoor-Furniture', 800.00, 25), ('Patio-Chair', 'Outdoor-Furniture', 200.00, 35), ('TotL-Desktop', 'Electronics', 1299.00, 10), ('Shower-Gel', 'Bathroom-Supplies', 12.00, 100), ('Phone-Charger', 'Electronics', 20.00, 200), ('Mirror', 'Indoor-Furniture', 140.00, 90), ('Mens-Shirt', 'Clothing', 10.00, 100), ('Womens-Shirt', 'Clothing', 10.00, 100)
