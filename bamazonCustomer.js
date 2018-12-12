@@ -19,19 +19,18 @@ function startBam(){
   inquirer.prompt([
     {
       name: "dept",
-      type: "rawlist",
+      type: "list",
       message: "Select a department to purchase from.",
       choices: ["Indoor-Furniture", "Outdoor-Furniture", "Electronics", "Bathroom-Supplies", "Clothing"]
     }
   ]).then(answer => {
-    if (answer.choices === "Indoor-Furniture") {
+    if (answer.dept === "Indoor-Furniture") {
       connection.query("SELECT * FROM products WHERE ?",
       {
         department_name: "Indoor-Furniture"
-      },)
-      // (err, res) => {
-      //   console.log("")
-      // })
+      }, (err, res) => {
+        if (err) throw (err);
+      })
     }
   })
 }
