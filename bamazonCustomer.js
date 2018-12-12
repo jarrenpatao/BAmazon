@@ -1,3 +1,4 @@
+const divider = "*---------------------------------*"
 const inquirer = require('inquirer');
 const mysql = require("mysql");
 const connection = mysql.createConnection({
@@ -24,13 +25,19 @@ function startBam(){
       choices: ["Indoor-Furniture", "Outdoor-Furniture", "Electronics", "Bathroom-Supplies", "Clothing"]
     }
   ]).then(answer => {
+    console.log(answer)
     if (answer.dept === "Indoor-Furniture") {
+      console.log(divider)
       connection.query("SELECT * FROM products WHERE ?",
       {
         department_name: "Indoor-Furniture"
-      }, (err, res) => {
+      }, 
+      (err, res) => {
         if (err) throw (err);
+        console.log(res);
+        console.log(divider);
       })
+      connection.end();
     }
   })
 }
