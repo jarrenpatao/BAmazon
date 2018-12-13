@@ -15,29 +15,91 @@ connection.connect((err) => {
   startBam();
 });
 
+// let itemId = 
+//   connection.query("SELECT item_id,product_name,price WHERE ?", 
+//   {
+//     item_id: itemId
+//   }, (err) => {
+
+//   })
+
 function startBam(){ 
-  connection.query("SELECT * FROM products");
   inquirer.prompt([
     {
       name: "dept",
-      type: "list",
+      type: "rawlist",
       message: "Select a department to purchase from.",
-      choices: ["Indoor-Furniture", "Outdoor-Furniture", "Electronics", "Bathroom-Supplies", "Clothing"]
+      choices: ["Indoor-Furniture", "Outdoor-Furniture", "Electronics", "Bathroom-Supplies", "Clothing", "Exit"]
     }
-  ]).then(answer => {
-    console.log(answer)
-    if (answer.dept === "Indoor-Furniture") {
-      console.log(divider)
-      connection.query("SELECT * FROM products WHERE ?",
+  ])
+  .then((answer) => {
+    // console.log(answer)
+    switch (answer.dept) {
+    case "Indoor-Furniture":
+      ifSearch();
+      var choiceIndex = "SELECT item_id,product_name,price FROM bamazon WHERE ?";
+      connection.query(choiceIndex,
       {
         department_name: "Indoor-Furniture"
-      }, 
-      (err, res) => {
+      }, (err, res) => {
         if (err) throw (err);
+        console.log(divider);
         console.log(res);
         console.log(divider);
       })
-      connection.end();
-    }
-  })
+    break;
+
+    case "Outside-Furniture":
+      ofSearch();
+      break;
+
+    case "Electronics":
+      elecSearch();
+      break;
+
+    case "Bathroom-Supplies":
+      bsSearch();
+      break;
+
+    case "Clothing":
+      clothingSearch();
+      break;
+    
+    case "Exit":
+      connection.end();  
+      break;  
+    }    
+  });
+  
+function ifSearch() {
+  inquirer
+    .prompt({
+      name: "indoor",
+      message: "Which is the item_id of the item you would like to view?"
+    })
+    .then((answer) => {
+      let queryIndoor = "SELECT item_id, product_name FROM products WHERE department_name Indoor-Furniture";
+      connection.query(queryIndoor, function(err, res) {
+        if (err) throw (err);
+        for (var i = 0; i < res.length; i++) {
+          console.log(res[i].product_name);
+          console.log(divider);
+        }
+        startBam();
+      });
+    })
+  }
 }
+//   .then(answer => {
+//     console.log(answer)
+    // if (answer.dept === "Indoor-Furniture") {
+    //   console.log(divider)
+    //   connection.query("SELECT item_id, product_name, price FROM products WHERE ?", (err, res) => {
+    //     if (err) throw (err);
+    //     console.log(res);
+    //     console.log(divider);
+    //   })
+    //   connection.end();
+    // }
+//   })
+// }
