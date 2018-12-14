@@ -1,4 +1,5 @@
 const divider = "*---------------------------------*"
+const conTable = require('console.table')
 const inquirer = require('inquirer');
 const mysql = require("mysql");
 const connection = mysql.createConnection({
@@ -12,22 +13,21 @@ connection.connect((err) => {
   if (err) throw err;
   console.log("connected as id " + connection.threadId + "\n");
   console.log("--------Welcome to bAmazon--------\n");
-  startBam();
+  startStore();  
 });
 
-// let itemId = 
-//   connection.query("SELECT item_id,product_name,price WHERE ?", 
-//   {
-//     item_id: itemId
-//   }, (err) => {
-
-//   })
+function startStore(){
+  connection.query("SELECT * FROM products", (err, res) => {
+    console.table(res);
+    startBam();
+  })
+}
 
 function startBam(){ 
   inquirer.prompt([
     {
-      name: "dept",
-      type: "rawlist",
+      name: "item",
+      type: "input",
       message: "Select a department to purchase from.",
       choices: ["Indoor-Furniture", "Outdoor-Furniture", "Electronics", "Bathroom-Supplies", "Clothing", "Exit"]
     }
@@ -44,9 +44,10 @@ function startBam(){
       }, (err, res) => {
         if (err) throw (err);
         console.log(divider);
-        console.log(res);
+        console.table(res);
         console.log(divider);
       })
+
     break;
 
     case "Outside-Furniture":
@@ -75,18 +76,11 @@ function ifSearch() {
   inquirer
     .prompt({
       name: "indoor",
-      message: "Which is the item_id of the item you would like to view?"
+      message: "Which is the item_id of the item you would like to view?",
+      type: "input"
     })
     .then((answer) => {
-      let queryIndoor = "SELECT item_id, product_name FROM products WHERE department_name Indoor-Furniture";
-      connection.query(queryIndoor, function(err, res) {
-        if (err) throw (err);
-        for (var i = 0; i < res.length; i++) {
-          console.log(res[i].product_name);
-          console.log(divider);
-        }
-        startBam();
-      });
+      
     })
   }
 }
