@@ -1,5 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const divider = "*------------------------------------------------*\n"
 require("console.table");
 
 const connection = mysql.createConnection({
@@ -45,6 +46,7 @@ function promptCustomerForItem(inventory) {
       }
       else {
         console.log("\nWe don't have that.");
+        console.log(divider);
         startBam();
       }
     });
@@ -66,6 +68,7 @@ function howMany(product) {
       var quantity = parseInt(val.quantity);
       if (quantity > product.stock_quantity) {
         console.log("\nWe don't have that many!");
+        console.log(divider);
         startBam();
       }
       else {
@@ -80,6 +83,7 @@ function buyIt(product, quantity) {
     [quantity, product.item_id],
     function(err, res) {
       console.log("\nSuccessfully purchased " + quantity + " " + product.product_name + "!");
+      console.log(divider);
       startBam();
     }
   );
@@ -97,6 +101,7 @@ function gotIt(choiceId, inventory) {
 function exitApp(choice) {
   if (choice.toLowerCase() === "exit") {
     console.log("Goodbye!");
+    console.log(divider);
     process.exit(0);
   }
 }
