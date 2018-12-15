@@ -1,7 +1,7 @@
-const divider = "*---------------------------------*"
-const conTable = require('console.table')
-const inquirer = require('inquirer');
 const mysql = require("mysql");
+const inquirer = require("inquirer");
+require("console.table");
+
 const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
@@ -9,91 +9,94 @@ const connection = mysql.createConnection({
   password: "",
   database: "bamazon"
 });
-connection.connect((err) => {
-  if (err) throw err;
-  console.log("connected as id " + connection.threadId + "\n");
-  console.log("--------Welcome to bAmazon--------\n");
-  startStore();  
+
+connection.connect(function(err) {
+  if (err) {
+    console.error("error connecting: " + err.stack);
+  }
+  startBam();
 });
 
-function startStore(){
-  connection.query("SELECT * FROM products", (err, res) => {
+function startBam() {
+  connection.query("SELECT * FROM products", function(err, res) {
+    if (err) throw err;
     console.table(res);
-    startBam();
-  })
+    promptCustomerForItem(res);
+  });
 }
 
-function startBam(){ 
-  inquirer.prompt([
-    {
-      name: "item",
-      type: "input",
-      message: "Select a department to purchase from.",
-      choices: ["Indoor-Furniture", "Outdoor-Furniture", "Electronics", "Bathroom-Supplies", "Clothing", "Exit"]
-    }
-  ])
-  .then((answer) => {
-    // console.log(answer)
-    switch (answer.dept) {
-    case "Indoor-Furniture":
-      ifSearch();
-      var choiceIndex = "SELECT item_id,product_name,price FROM bamazon WHERE ?";
-      connection.query(choiceIndex,
-      {
-        department_name: "Indoor-Furniture"
-      }, (err, res) => {
-        if (err) throw (err);
-        console.log(divider);
-        console.table(res);
-        console.log(divider);
-      })
-
-    break;
-
-    case "Outside-Furniture":
-      ofSearch();
-      break;
-
-    case "Electronics":
-      elecSearch();
-      break;
-
-    case "Bathroom-Supplies":
-      bsSearch();
-      break;
-
-    case "Clothing":
-      clothingSearch();
-      break;
-    
-    case "Exit":
-      connection.end();  
-      break;  
-    }    
-  });
-  
-function ifSearch() {
+function promptCustomerForItem(inventory) {
   inquirer
-    .prompt({
-      name: "indoor",
-      message: "Which is the item_id of the item you would like to view?",
-      type: "input"
-    })
-    .then((answer) => {
-      
-    })
+    .prompt([
+      {
+        type: "input",
+        name: "choice",
+        message: "Whats the ID# for the item you would you like to buy?",
+        validate: function(val) {
+          return !isNaN(val) || val.toLowerCase() === "q";
+        }
+      }
+    ]).then(function(val) {
+      exitApp(val.choice);
+      var choiceId = parseInt(val.choice);
+      var product = gotIt(choiceId, inventory);
+      if (product) {
+        howMany(product);
+      }
+      else {
+        console.log("\nWe don't have that.");
+        startBam();
+      }
+    });
+}
+
+function howMany(product) {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "quantity",
+        message: "How many would you like?",
+        validate: function(val) {
+          return val > 0 || val.toLowerCase() === "exit";
+        }
+      }
+    ]).then(function(val) {
+      exitApp(val.quantity);
+      var quantity = parseInt(val.quantity);
+      if (quantity > product.stock_quantity) {
+        console.log("\nWe don't have that many!");
+        startBam();
+      }
+      else {
+        buyIt(product, quantity);
+      }
+    });
+}
+
+function buyIt(product, quantity) {
+  connection.query(
+    "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
+    [quantity, product.item_id],
+    function(err, res) {
+      console.log("\nSuccessfully purchased " + quantity + " " + product.product_name + "!");
+      startBam();
+    }
+  );
+}
+
+function gotIt(choiceId, inventory) {
+  for (var i = 0; i < inventory.length; i++) {
+    if (inventory[i].item_id === choiceId) {
+      return inventory[i];
+    }
+  }
+  return null;
+}
+
+function exitApp(choice) {
+  if (choice.toLowerCase() === "exit") {
+    console.log("Goodbye!");
+    process.exit(0);
   }
 }
-//   .then(answer => {
-//     console.log(answer)
-    // if (answer.dept === "Indoor-Furniture") {
-    //   console.log(divider)
-    //   connection.query("SELECT item_id, product_name, price FROM products WHERE ?", (err, res) => {
-    //     if (err) throw (err);
-    //     console.log(res);
-    //     console.log(divider);
-    //   })
-    //   connection.end();
-    // }
-//   })
-// }
